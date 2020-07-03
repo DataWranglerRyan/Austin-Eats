@@ -15,11 +15,11 @@ jwt = JWTManager(app)
 api = Api(app)
 
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
-    if not RestaurantModel.find_by_name('Sugar Pine'):
-        RestaurantModel('Sugar Pine', 3.75).save_to_db()
+# @app.before_first_request
+# def create_tables():
+#     db.create_all()
+#     if not RestaurantModel.find_by_name('Sugar Pine'):
+#         RestaurantModel('Sugar Pine', 3.75).save_to_db()
 
 
 api.add_resource(Restaurant, '/restaurant/<string:name>')
