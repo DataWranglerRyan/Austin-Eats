@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -9,7 +10,7 @@ from models.restaurant_model import RestaurantModel
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///data.db")
 app.config['JWT_SECRET_KEY'] = 'ryan'
 jwt = JWTManager(app)
 api = Api(app)
