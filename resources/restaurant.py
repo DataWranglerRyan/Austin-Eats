@@ -12,8 +12,9 @@ class Restaurant(Resource):
         help='Field is required.'
     )
 
-    @jwt_required
-    def get(self, name):
+    @staticmethod
+    # @jwt_required
+    def get(name):
         restaurant = RestaurantModel.find_by_name(name)
         if restaurant:
             return restaurant.json(), 200
@@ -61,7 +62,8 @@ class Restaurant(Resource):
 
 
 class RestaurantList(Resource):
-    @jwt_required
-    def get(self):
+    @staticmethod
+    # @jwt_required
+    def get():
         return {'restaurants': [r.json() for r in RestaurantModel.get_all()]}, 200
 

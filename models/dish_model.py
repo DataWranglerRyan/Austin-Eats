@@ -24,6 +24,10 @@ class DishModel(db.Model):
         return cls.query.filter_by(name=name).first()
 
     @classmethod
+    def from_restaurant(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).all()
+
+    @classmethod
     def get_all(cls):
         return cls.query.all()
 

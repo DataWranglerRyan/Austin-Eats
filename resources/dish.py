@@ -69,5 +69,5 @@ class Dish(Resource):
 class DishList(Resource):
     @jwt_required
     def get(self):
-        return {'dishes': [r.json() for r in DishModel.get_all()]}, 200
+        return {'dishes': [d.json() for d in DishModel.get_all()]}, 200
 

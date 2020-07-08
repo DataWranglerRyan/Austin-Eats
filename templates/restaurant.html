@@ -1,0 +1,16 @@
+{%  extends "base.html" %}
+{%  block content %}
+    <div class="container">
+        <h2>{{restaurant.name}}</h2>
+        {% if restaurant.dishes|length > 0 %}
+            <h4>Dish List:</h4>
+            {% for dish in restaurant.dishes %}
+                <h5> {{dish.name}}</h5>
+                <p> has a review of {{ dish.review }}</p>
+                <hr>
+            {% endfor %}
+        {% else %}
+            <h4>There are no dishes yet!</h4>
+        {% endif %}
+    </div>
+{% endblock %}
