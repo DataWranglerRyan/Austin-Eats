@@ -4,7 +4,7 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from resources.user import UserRegister, UserLogin
 from resources.restaurant import Restaurant, RestaurantList
-from resources.dish import Dish, DishList
+from resources.dish import Dish, DishList, DishByRestaurantID, DishListByRestaurantID
 
 
 app = Flask(__name__)
@@ -75,10 +75,31 @@ def restaurant_by_name(name):
         return render_template('error.html', error='Please Login.')
 
 
+@app.route('/restaurant/new', methods=['POST', 'GET'])
+def create_restaurant():
+    if request.method == 'GET':
+        return render_template('new_restaurant.html')
+    else:
+        Restaurant.post(request.form['name'])
+        return make_response(restaurant_list())
+
+
+@app.route('/restaurant/<string:restaurant_id>/dish/new', methods=['POST', 'GET'])
+def create_restaurant_dish(restaurant_id):
+    if request.method == 'GET':
+        return render_template('new_restaurant_dish.html', restaurant_id=restaurant_id)
+    else:
+        DishByRestaurantID.post(restaurant_id)
+        # NEED TO Return to restaurant view not restaurants
+        return make_response(restaurant_list())
+
+
 api.add_resource(Restaurant, '/api/restaurant/<string:name>')
 api.add_resource(RestaurantList, '/api/restaurants')
 api.add_resource(Dish, '/api/dish/<string:name>')
+api.add_resource(DishByRestaurantID, '/api/restaurant/<string:restaurant_id>/dish')
 api.add_resource(DishList, '/api/dishes')
+api.add_resource(DishListByRestaurantID, '/api/restaurant/<string:restaurant_id>/dishes')
 api.add_resource(UserRegister, '/api/register')
 api.add_resource(UserLogin, '/api/login')
 

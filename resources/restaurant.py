@@ -20,10 +20,10 @@ class Restaurant(Resource):
             return restaurant.json(), 200
         return {'message': 'Restaurant not found.'}, 404  # return 404 Not Found
 
-    def post(self, name):
+    @staticmethod
+    def post(name):
         if RestaurantModel.find_by_name(name):
             return {'message': 'Restaurant with name {} already exists.'.format(name)}, 400
-
         payload = Restaurant.parse.parse_args()
         restaurant = RestaurantModel(name, payload['review'])
 

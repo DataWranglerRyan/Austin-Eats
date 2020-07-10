@@ -15,7 +15,7 @@ class RestaurantModel(db.Model):
         self.review = review
 
     def json(self):
-        return {'name': self.name, 'review': self.review, 'dishes': [d.json() for d in self.get_dishes()]}
+        return {'id': self.id, 'name': self.name, 'review': self.review, 'dishes': [d.json() for d in self.get_dishes()]}
 
     @classmethod
     def find_by_name(cls, name):

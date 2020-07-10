@@ -2,6 +2,7 @@
 {%  block content %}
     <div class="container">
         <h2>{{restaurant.name}}</h2>
+        <a class="btn btn-outline-success btn-sm" href="/restaurant/{{restaurant.id}}/dish/new">Add a Dish</a>
         {% if restaurant.dishes|length > 0 %}
             <h4>Dish List:</h4>
             {% for dish in restaurant.dishes %}

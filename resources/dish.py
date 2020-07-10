@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from models.dish_model import DishModel
+from models.restaurant_model import RestaurantModel
 
 
 class Dish(Resource):
@@ -9,7 +10,7 @@ class Dish(Resource):
         'review',
         required=True,
         type=float,
-        help='Field is required.'
+        help='Every dish needs a review'
     )
     parse.add_argument(
         'restaurant_id',
@@ -25,11 +26,12 @@ class Dish(Resource):
             return dish.json(), 200
         return {'message': 'Dish not found.'}, 404  # return 404 Not Found
 
-    def post(self, name):
+    @classmethod
+    def post(cls, name):
         if DishModel.find_by_name(name):
             return {'message': 'Dish with name {} already exists.'.format(name)}, 400
 
-        payload = Dish.parse.parse_args()
+        payload = cls.parse.parse_args()
         dish = DishModel(name, payload['review'], payload['restaurant_id'])
 
         try:
@@ -45,29 +47,73 @@ class Dish(Resource):
             dish.delete_from_db()
             return {'message': '{} deleted.'.format(name)}, 200
         else:
-            return {'message': 'Restaurant does not exist.'.format(name)}, 400
+            return {'message': 'Dish does not exist.'.format(name)}, 400
 
-    def put(self, name):
-        payload = Dish.parse.parse_args()
+    @classmethod
+    def put(cls, name):
+        payload = cls.parse.parse_args()
         dish = DishModel.find_by_name(name)
 
         if dish is None:
             try:
                 dish = DishModel(name, payload['review'], payload['restaurant_id'])
             except:
-                {'message': 'An error occurred creating restaurant.'}, 500
+                {'message': 'An error occurred creating Dish.'}, 500
         else:
             try:
                 dish.review = payload['review']
             except:
-                {'message': 'An error occurred updating restaurant.'}, 500
+                {'message': 'An error occurred updating Dish.'}, 500
 
         dish.save_to_db()
         return dish.json(), 200
+
+
+class DishByRestaurantID(Resource):
+    parse = reqparse.RequestParser()
+    parse.add_argument(
+        'review',
+        required=True,
+        type=float,
+        help='Every dish by restaurant id needs a review.'
+    )
+    parse.add_argument(
+        'name',
+        required=True,
+        type=str,
+        help='Every dish by restaurant id needs a name.'
+    )
+
+    @classmethod
+    def post(cls, restaurant_id):
+        if not RestaurantModel.find_by_id(restaurant_id):
+            return {'message': f'Cannot add dish. Restaurant with {restaurant_id} does not exist. '}, 400
+        payload = cls.parse.parse_args()
+        dish = DishModel(payload['name'], payload['review'], restaurant_id)
+
+        try:
+            dish.save_to_db()
+        except Exception as e:
+            {'message': 'An error occurred'}, 500
+
+        return dish.json(), 201  # return 201 Created
 
 
 class DishList(Resource):
     @jwt_required
     def get(self):
         return {'dishes': [d.json() for d in DishModel.get_all()]}, 200
+
+
+class DishListByRestaurantID(Resource):
+    @staticmethod
+    def get(restaurant_id):
+        restaurant = RestaurantModel.find_by_id(restaurant_id)
+        if not restaurant:
+            return {'message': f'Cannot get Dishes. Restaurant with {restaurant_id} does not exist. '}, 400
+
+        dishes = restaurant.get_dishes()
+        if dishes:
+            return {'dishes': [d.json() for d in dishes]}, 200
+        return {'message': 'Dishes not found.'}, 404  # return 404 Not Found
 

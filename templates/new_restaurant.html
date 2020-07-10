@@ -1,0 +1,17 @@
+{%  extends "base.html" %}
+{%  block content %}
+    <div class="container auth-page-form" id="new-restaurant-page-form">
+        <h5>Create new Restaurant:</h5>
+        <form id="new-restaurant" action="/restaurant/new" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class='form-control' id="restaurant_name" name="name">
+            </div>
+            <div class="form-group">
+                <label for="review">Review</label>
+                <input type="text" class='form-control' id="restaurant_review" name="review">
+            </div>
+            <button type="submit" class="btn btn-outline-success btn-sm" id="new-restaurant-button">Create Restaurant</button>
+        </form>
+    </div>
+{% endblock %}
