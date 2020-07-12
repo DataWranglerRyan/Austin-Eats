@@ -1,5 +1,6 @@
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
+from typing import Dict
 from models.dish_model import DishModel
 from models.restaurant_model import RestaurantModel
 
@@ -20,16 +21,16 @@ class Dish(Resource):
     )
 
     @jwt_required
-    def get(self, name):
+    def get(self, name) -> (Dict, int):
         dish = DishModel.find_by_name(name)
         if dish:
             return dish.json(), 200
         return {'message': 'Dish not found.'}, 404  # return 404 Not Found
 
     @classmethod
-    def post(cls, name):
+    def post(cls, name) -> (Dict, int):
         if DishModel.find_by_name(name):
-            return {'message': 'Dish with name {} already exists.'.format(name)}, 400
+            return {'message': f'Dish with name {name} already exists.'}, 400
 
         payload = cls.parse.parse_args()
         dish = DishModel(name, payload['review'], payload['restaurant_id'])
@@ -41,16 +42,16 @@ class Dish(Resource):
 
         return dish.json(), 201  # return 201 Created
 
-    def delete(self, name):
+    def delete(self, name) -> (Dict, int):
         dish = DishModel.find_by_name(name)
         if dish:
             dish.delete_from_db()
-            return {'message': '{} deleted.'.format(name)}, 200
+            return {'message': f'{name} deleted.'}, 200
         else:
-            return {'message': 'Dish does not exist.'.format(name)}, 400
+            return {'message': f'Dish ({name}) does not exist.'}, 400
 
     @classmethod
-    def put(cls, name):
+    def put(cls, name) -> (Dict, int):
         payload = cls.parse.parse_args()
         dish = DishModel.find_by_name(name)
 
@@ -58,12 +59,12 @@ class Dish(Resource):
             try:
                 dish = DishModel(name, payload['review'], payload['restaurant_id'])
             except:
-                {'message': 'An error occurred creating Dish.'}, 500
+                return {'message': 'An error occurred creating Dish.'}, 500
         else:
             try:
                 dish.review = payload['review']
             except:
-                {'message': 'An error occurred updating Dish.'}, 500
+                return {'message': 'An error occurred updating Dish.'}, 500
 
         dish.save_to_db()
         return dish.json(), 200
@@ -85,7 +86,7 @@ class DishByRestaurantID(Resource):
     )
 
     @classmethod
-    def post(cls, restaurant_id):
+    def post(cls, restaurant_id) -> (Dict, int):
         if not RestaurantModel.find_by_id(restaurant_id):
             return {'message': f'Cannot add dish. Restaurant with {restaurant_id} does not exist. '}, 400
         payload = cls.parse.parse_args()
@@ -94,20 +95,20 @@ class DishByRestaurantID(Resource):
         try:
             dish.save_to_db()
         except Exception as e:
-            {'message': 'An error occurred'}, 500
+            return {'message': 'An error occurred'}, 500
 
         return dish.json(), 201  # return 201 Created
 
 
 class DishList(Resource):
     @jwt_required
-    def get(self):
+    def get(self) -> (Dict, int):
         return {'dishes': [d.json() for d in DishModel.get_all()]}, 200
 
 
 class DishListByRestaurantID(Resource):
     @staticmethod
-    def get(restaurant_id):
+    def get(restaurant_id) -> (Dict, int):
         restaurant = RestaurantModel.find_by_id(restaurant_id)
         if not restaurant:
             return {'message': f'Cannot get Dishes. Restaurant with {restaurant_id} does not exist. '}, 400

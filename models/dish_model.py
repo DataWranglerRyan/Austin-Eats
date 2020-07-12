@@ -1,4 +1,5 @@
 from db import db
+from typing import Dict
 
 
 class DishModel(db.Model):
@@ -11,13 +12,16 @@ class DishModel(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
     restaurant = db.relationship('RestaurantModel')
 
-    def __init__(self, name, review, restaurant_id):
+    def __init__(self, name: str, review: float, restaurant_id: int):
         self.name = name
         self.review = review
         self.restaurant_id = restaurant_id
 
-    def json(self):
-        return {'name': self.name, 'review': self.review}
+    def json(self) -> Dict:
+        return {
+                    'name': self.name,
+                    'review': self.review
+        }
 
     @classmethod
     def find_by_name(cls, name):

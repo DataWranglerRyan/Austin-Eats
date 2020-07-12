@@ -1,4 +1,5 @@
 from db import db
+from typing import Dict, List
 
 
 class RestaurantModel(db.Model):
@@ -10,12 +11,17 @@ class RestaurantModel(db.Model):
 
     dishes = db.relationship('DishModel', lazy='dynamic')
 
-    def __init__(self, name, review):
+    def __init__(self, name: str, review: float):
         self.name = name
         self.review = review
 
-    def json(self):
-        return {'id': self.id, 'name': self.name, 'review': self.review, 'dishes': [d.json() for d in self.get_dishes()]}
+    def json(self) -> Dict:
+        return {
+                    'id': self.id,
+                    'name': self.name,
+                    'review': self.review,
+                    'dishes': [d.json() for d in self.get_dishes()]
+        }
 
     @classmethod
     def find_by_name(cls, name):
@@ -26,10 +32,10 @@ class RestaurantModel(db.Model):
         return cls.query.filter_by(id=_id).first()
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls) -> List:
         return cls.query.all()
 
-    def get_dishes(self):
+    def get_dishes(self) -> List:
         return self.dishes.all()
 
     def save_to_db(self):
