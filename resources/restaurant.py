@@ -14,6 +14,14 @@ class Restaurant(Resource):
     )
 
     @staticmethod
+    def get_random() -> Dict:
+        restaurant = RestaurantModel.get_random()
+        if restaurant:
+            return restaurant.json()
+        else:
+            return {'message': "No Restaurants. Can't get random."}
+
+    @staticmethod
     # @jwt_required
     def get(name) -> (Dict, int):
         restaurant = RestaurantModel.find_by_name(name)

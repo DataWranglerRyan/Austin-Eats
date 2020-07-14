@@ -1,4 +1,5 @@
 from db import db
+from sqlalchemy.sql.expression import func
 from typing import Dict, List
 
 
@@ -20,7 +21,7 @@ class RestaurantModel(db.Model):
                     'id': self.id,
                     'name': self.name,
                     'review': self.review,
-                    'dishes': [d.json() for d in self.get_dishes()]
+                    'dishes': f'/api/restaurant/{self.id}/dishes' #[d.json() for d in self.get_dishes()]
         }
 
     @classmethod
@@ -34,6 +35,10 @@ class RestaurantModel(db.Model):
     @classmethod
     def get_all(cls) -> List:
         return cls.query.all()
+
+    @classmethod
+    def get_random(cls) -> List:
+        return cls.query.order_by(func.random()).first()
 
     def get_dishes(self) -> List:
         return self.dishes.all()

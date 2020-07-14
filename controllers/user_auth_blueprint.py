@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session
 from resources.user import UserLogin, UserRegister
+from resources.restaurant import Restaurant
 
 user_login_blueprint = Blueprint('login', __name__)
 user_register_blueprint = Blueprint('register', __name__)
@@ -15,7 +16,7 @@ def login():
         payload, status_code = UserLogin.authenticate(user_name, password)
         if status_code == 200:
             UserLogin.login(user_name)
-            return render_template('profile.html', username=session['user_name'])
+            return render_template('profile.html', username=session['user_name'], restaurant=Restaurant)
         else:
             UserLogin.logout()
             return render_template('error.html', error=payload.get('msg'))

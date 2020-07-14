@@ -116,5 +116,5 @@ class DishListByRestaurantID(Resource):
         dishes = restaurant.get_dishes()
         if dishes:
             return {'dishes': [d.json() for d in dishes]}, 200
-        return {'message': 'Dishes not found.'}, 404  # return 404 Not Found
+        return {'dishes': [], 'message': 'Restaurant has no dishes.'}, 404  # return 404 Not Found
 

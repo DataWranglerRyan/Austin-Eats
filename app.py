@@ -15,7 +15,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:/
 app.config['JWT_SECRET_KEY'] = 'ryan'
 app.secret_key = 'ryan'
 jwt = JWTManager(app)
-api = Api(app)
+
 
 app.register_blueprint(user_login_blueprint, url_prefix='/login')
 app.register_blueprint(user_register_blueprint, url_prefix='/register')
@@ -28,16 +28,18 @@ def home():
     return render_template('home.html')
 
 
-api.add_resource(Restaurant, '/api/restaurant/<string:name>')
-api.add_resource(RestaurantList, '/api/restaurants')
-api.add_resource(Dish, '/api/dish/<string:name>')
-api.add_resource(DishByRestaurantID, '/api/restaurant/<string:restaurant_id>/dish')
-api.add_resource(DishList, '/api/dishes')
-api.add_resource(DishListByRestaurantID, '/api/restaurant/<string:restaurant_id>/dishes')
-api.add_resource(UserRegister, '/api/register')
-api.add_resource(UserLogin, '/api/login')
+api = Api(app, prefix='/api')
+api.add_resource(Restaurant, '/restaurant/<string:name>')
+api.add_resource(RestaurantList, '/restaurants')
+api.add_resource(Dish, '/dish/<string:name>')
+api.add_resource(DishByRestaurantID, '/restaurant/<string:restaurant_id>/dish')
+api.add_resource(DishList, '/dishes')
+api.add_resource(DishListByRestaurantID, '/restaurant/<string:restaurant_id>/dishes')
+api.add_resource(UserRegister, '/register')
+api.add_resource(UserLogin, '/login')
 
 if __name__ == '__main__':
     from db import db
     db.init_app(app)
     app.run(port=5000, debug=True)
+

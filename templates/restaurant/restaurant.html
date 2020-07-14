@@ -1,0 +1,22 @@
+{%  extends "base.html" %}
+{%  block content %}
+    <div class="container">
+        <div class="col-sm">
+            <h2 class="mb-3">{{restaurant.name}}</h2>
+            <a class="btn btn-outline-success btn-sm mb-3" href="/restaurant/{{restaurant.id}}/dish/new">Add a Dish</a>
+            <ul class="list-group">
+                {% if restaurant.dishes|length > 0 %}
+                    <h4>Dish List:</h4>
+                    {% for dish in restaurant.dishes %}
+                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                            <h4> {{dish.name}}</h4>
+                            <small class="badge badge-info badge-pill"> {{ dish.review }} stars</small>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h4>There are no dishes yet!</h4>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
