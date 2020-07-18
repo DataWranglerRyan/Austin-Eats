@@ -8,13 +8,23 @@
             <h2>Hello, {{ user_name }}!</h2>
             <h2 class="mb-3">Restaurant List:</h2>
             <a class="btn btn-outline-success btn-sm mb-3" href="/restaurant/new">Add a Restaurant</a>
-            <a class="btn btn-outline-secondary btn-sm mb-3" href="/restaurant/{{ restaurant.get_random()['name'] }}"> Choose a Random Restaurant</a>
+            <a class="btn btn-outline-secondary btn-sm mb-3" href="{{ url_for('restaurant.get_random') }}"> Choose a Random Restaurant</a>
             <ul class="list-group">
                 {% for restaurant in restaurants %}
-                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="/restaurant/{{ restaurant.name }}">
-                        <h4>{{restaurant.name}}</h4>
-                        <small class="badge badge-info badge-pill"> {{ restaurant.review }} stars</small>
-                    </a>
+                    <div class="col-12">
+                        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="/restaurant/{{ restaurant.name }}">
+                            <h4>{{restaurant.name}}</h4>
+                            <small class="badge badge-info badge-pill"> {{ restaurant.review }} stars</small>
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a class="btn btn-secondary btn-sm" href="{{ url_for('restaurant.edit_restaurant', restaurant_id=restaurant.id) }}">
+                            Edit
+                        </a>
+                        <a class="btn btn-secondary btn-sm" href="{{ url_for('restaurant.create_restaurant_dish', restaurant_id=restaurant.id) }}">
+                            Add Dish
+                        </a>
+                    </div>
                 {% endfor %}
             </ul>
         </div>

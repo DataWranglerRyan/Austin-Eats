@@ -2,7 +2,7 @@
 {%  block content %}
     <div class="container auth-page-form" id="new-restaurant-dish-page-form">
         <h5>Create new Dish:</h5>
-        <form id="new-restaurant" action="/restaurant/{{restaurant_id}}/dish/new" method="POST">
+        <form id="new-restaurant" action="{{url_for('restaurant.create_restaurant_dish', restaurant_id=restaurant_id)}}" method="POST">
             <div class="form-group">
                 <label for="name">Name</label>
                 <input type="text" class='form-control' id="dish_name" name="name">

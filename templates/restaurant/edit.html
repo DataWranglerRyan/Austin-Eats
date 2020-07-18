@@ -1,0 +1,17 @@
+{%  extends "base.html" %}
+{%  block content %}
+    <div class="container auth-page-form" id="edit-restaurant-page-form">
+        <h5>Edit Restaurant:</h5>
+        <form id="edit-restaurant" action="{{url_for('restaurant.edit_restaurant', restaurant_id=restaurant.id)}}" method="POST">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class='form-control' id="restaurant_name" name="name" value="{{ restaurant.name }}" disabled>
+            </div>
+            <div class="form-group">
+                <label for="review">Review</label>
+                <input type="text" class='form-control' id="restaurant_review" name="review" value="{{ restaurant.review }}">
+            </div>
+            <button type="submit" class="btn btn-outline-success btn-sm" id="edit-restaurant-button">Edit Restaurant</button>
+        </form>
+    </div>
+{% endblock %}

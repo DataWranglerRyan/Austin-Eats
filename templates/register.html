@@ -2,7 +2,7 @@
 {%  block content %}
     <div class="container auth-page-form" id="register-page-form">
         <h5>Register User:</h5>
-        <form id="register-form" action="/register" method="POST">
+        <form id="register-form" action="{{url_for('register.register')}}" method="POST">
             <div class="form-group">
                 <label for="user_name">User Name</label>
                 <input type="text" class='form-control' id="user_name" name="user_name">

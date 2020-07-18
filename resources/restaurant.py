@@ -43,7 +43,8 @@ class Restaurant(Resource):
 
         return restaurant.json(), 201  # return 201 Created
 
-    def delete(self, name) -> (Dict, int):
+    @staticmethod
+    def delete(name) -> (Dict, int):
         restaurant = RestaurantModel.find_by_name(name)
         if restaurant:
             restaurant.delete_from_db()
@@ -51,7 +52,8 @@ class Restaurant(Resource):
         else:
             return {'message': f'Restaurant ({name}) does not exist.'}, 400
 
-    def put(self, name) -> (Dict, int):
+    @staticmethod
+    def put(name) -> (Dict, int):
         payload = Restaurant.parse.parse_args()
         restaurant = RestaurantModel.find_by_name(name)
 
@@ -78,6 +80,15 @@ class RestaurantByID(Resource):
         if restaurant:
             return restaurant.json(), 200
         return {'message': 'Restaurant not found.'}, 404  # return 404 Not Found
+
+
+class RestaurantGetRandom(Resource):
+    @staticmethod
+    def get() -> (Dict, int):
+        restaurant = RestaurantModel.get_random()
+        if restaurant:
+            return restaurant.json(), 200
+        return {'message': 'Random Restaurant not found.'}, 404  # return 404 Not Found
 
 
 class RestaurantList(Resource):

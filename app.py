@@ -6,7 +6,7 @@ from resources.user import UserRegister, UserLogin
 from resources.restaurant import Restaurant, RestaurantList
 from resources.dish import Dish, DishList, DishByRestaurantID, DishListByRestaurantID
 from controllers.restaurants_blueprint import restaurant_blueprint, restaurants_blueprint
-from controllers.user_auth_blueprint import user_register_blueprint, user_login_blueprint
+from controllers.user_auth_blueprint import user_register_blueprint, user_login_blueprint, user_profile_blueprint
 
 
 app = Flask(__name__)
@@ -19,6 +19,7 @@ jwt = JWTManager(app)
 
 app.register_blueprint(user_login_blueprint, url_prefix='/login')
 app.register_blueprint(user_register_blueprint, url_prefix='/register')
+app.register_blueprint(user_profile_blueprint, url_prefix='/profile')
 app.register_blueprint(restaurants_blueprint, url_prefix='/restaurants')
 app.register_blueprint(restaurant_blueprint, url_prefix='/restaurant')
 
