@@ -56,7 +56,7 @@ def edit_restaurant(restaurant_id):
     payload, status_code = RestaurantByID.get(restaurant_id)
     if request.method == 'POST':
         Restaurant.put(payload['name'])
-        return redirect(url_for(".restaurant_by_name", name=payload['name']))
+        return redirect(url_for("restaurants.restaurant_list", name=payload['name']))
     else:
         return render_template("restaurant/edit.html", restaurant=payload)
 

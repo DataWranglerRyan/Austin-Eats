@@ -12,6 +12,9 @@
                             <h4> {{dish.name}}</h4>
                             <small class="badge badge-info badge-pill"> {{ dish.review }} stars</small>
                         </div>
+                        <a class="btn btn-danger btn-sm" href="{{ url_for('dish.delete_dish', dish_id=dish.id) }}">
+                            Delete Dish
+                        </a>
                     {% endfor %}
                 {% else %}
                     <h4>There are no dishes yet!</h4>

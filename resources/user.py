@@ -1,7 +1,7 @@
 from flask import session
 from flask_jwt_extended import create_access_token
 from flask_restful import Resource, reqparse
-from werkzeug.security import safe_str_cmp
+from common.utils import Utils
 from models.user_model import UserModel
 
 
@@ -24,10 +24,11 @@ class UserRegister(Resource):
     @staticmethod
     def post():
         data = UserRegister.parse.parse_args()
+        encrypted_pw = Utils.encrypt_password(data['password'])
         if UserModel.find_by_username(data['user_name']):
             return {'msg': 'User already exists.'}, 400
 
-        UserModel(**data).save_to_db()
+        UserModel(user_name=data['user_name'], password=encrypted_pw).save_to_db()
         return {'msg': 'User created'}, 201
 
     # @staticmethod
@@ -65,7 +66,7 @@ class UserLogin(Resource):
         user = UserModel.find_by_username(user_name)
         if not user:
             return {"msg": "No User Found"}, 401
-        if not safe_str_cmp(user.password, password):
+        if not Utils.check_encrypted_password(password, user.password):
             return {"msg": "Incorrect Password"}, 401
         else:
             return {"token": create_access_token(identity=user.username)}, 200

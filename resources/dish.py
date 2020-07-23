@@ -42,7 +42,8 @@ class Dish(Resource):
 
         return dish.json(), 201  # return 201 Created
 
-    def delete(self, name) -> (Dict, int):
+    @staticmethod
+    def delete(name) -> (Dict, int):
         dish = DishModel.find_by_name(name)
         if dish:
             dish.delete_from_db()
@@ -68,6 +69,24 @@ class Dish(Resource):
 
         dish.save_to_db()
         return dish.json(), 200
+
+
+class DishByID(Resource):
+    @staticmethod
+    def get(dish_id) -> (Dict, int):
+        dish = DishModel.find_by_id(dish_id)
+        if dish:
+            return dish.json(), 200
+        return {'message': 'Dish not found.'}, 404  # return 404 Not Found
+
+    @staticmethod
+    def delete(dish_id) -> (Dict, int):
+        dish = DishModel.find_by_id(dish_id)
+        if dish:
+            dish.delete_from_db()
+            return {'message': f'{dish.name} deleted.'}, 200
+        else:
+            return {'message': f'Dish ({dish.name}) does not exist.'}, 400
 
 
 class DishByRestaurantID(Resource):
@@ -115,6 +134,7 @@ class DishListByRestaurantID(Resource):
 
         dishes = restaurant.get_dishes()
         if dishes:
-            return {'dishes': [d.json() for d in dishes]}, 200
+            return {'restaurant': f'/api/restaurant/id/{restaurant_id}',
+                    'dishes': [d.json(show_restaurant=False) for d in dishes]}, 200
         return {'dishes': [], 'message': 'Restaurant has no dishes.'}, 404  # return 404 Not Found
 

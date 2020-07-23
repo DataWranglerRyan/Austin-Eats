@@ -17,15 +17,24 @@ class DishModel(db.Model):
         self.review = review
         self.restaurant_id = restaurant_id
 
-    def json(self) -> Dict:
-        return {
+    def json(self, show_restaurant=True) -> Dict:
+        dish_json = {
+                    'id': self.id,
                     'name': self.name,
                     'review': self.review
         }
+        if show_restaurant:
+            dish_json['restaurant_id'] = self.restaurant_id
+            dish_json['restaurant'] = f'/api/restaurant/id/{self.restaurant_id}'
+        return dish_json
 
     @classmethod
     def find_by_name(cls, name):
         return cls.query.filter_by(name=name).first()
+
+    @classmethod
+    def find_by_id(cls, _id):
+        return cls.query.filter_by(id=_id).first()
 
     @classmethod
     def from_restaurant(cls, restaurant_id):
