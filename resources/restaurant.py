@@ -1,3 +1,4 @@
+from flask import session
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from typing import Dict
@@ -34,7 +35,8 @@ class Restaurant(Resource):
         if RestaurantModel.find_by_name(name):
             return {'message': f'Restaurant with name {name} already exists.'}, 400
         payload = Restaurant.parse.parse_args()
-        restaurant = RestaurantModel(name, payload['review'])
+        added_by = session.get('user_name', 'api_user')
+        restaurant = RestaurantModel(name, payload['review'], added_by)
 
         try:
             restaurant.save_to_db()

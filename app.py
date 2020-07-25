@@ -10,7 +10,7 @@ from controllers.user_auth_blueprint import user_register_blueprint, user_login_
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///data.db")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///data_dev.db")
 app.config['JWT_SECRET_KEY'] = 'ryan'
 app.secret_key = os.urandom(64)
 jwt = JWTManager(app)
@@ -36,6 +36,11 @@ add_api_resources(api)
 if __name__ == '__main__':
     from db import db
     db.init_app(app)
+
+    @app.before_first_request
+    def create_tables():
+        db.create_all()
+
     app.run(port=5000, debug=True)
 
 

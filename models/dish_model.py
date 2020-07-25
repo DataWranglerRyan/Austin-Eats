@@ -10,12 +10,11 @@ class DishModel(db.Model):
     review = db.Column(db.Float(precision=2))
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
-    restaurant = db.relationship('RestaurantModel')
+    restaurant = db.relationship('RestaurantModel', back_populates='dishes')
 
-    def __init__(self, name: str, review: float, restaurant_id: int):
+    def __init__(self, name: str, review: float):
         self.name = name
         self.review = review
-        self.restaurant_id = restaurant_id
 
     def json(self, show_restaurant=True) -> Dict:
         dish_json = {

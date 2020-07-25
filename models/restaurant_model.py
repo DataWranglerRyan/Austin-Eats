@@ -1,6 +1,8 @@
 from db import db
 from sqlalchemy.sql.expression import func
 from typing import Dict, List
+from .dish_model import DishModel
+from .restaurant_review_model import RestaurantReviewModel
 
 
 class RestaurantModel(db.Model):
@@ -9,12 +11,15 @@ class RestaurantModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
     review = db.Column(db.Float(precision=2))
+    added_by = db.Column(db.String(80))
 
-    dishes = db.relationship('DishModel', lazy='dynamic')
+    dishes = db.relationship('DishModel', back_populates='restaurant', lazy='dynamic')
+    reviews = db.relationship('RestaurantReviewModel', back_populates='restaurant', lazy='dynamic')
 
-    def __init__(self, name: str, review: float):
+    def __init__(self, name: str, review: float, added_by: str = None):
         self.name = name
         self.review = review
+        self.added_by = added_by
 
     def json(self) -> Dict:
         return {
@@ -42,6 +47,15 @@ class RestaurantModel(db.Model):
 
     def get_dishes(self) -> List:
         return self.dishes.all()
+
+    def get_dish_by_name(self, name):
+        return self.dishes.filter(DishModel.name == name).first()
+
+    def get_reviews(self) -> List:
+        return self.reviews.all()
+
+    def get_review_by_id(self, review_id):
+        return self.reviews.filter(RestaurantReviewModel.id == review_id).first()
 
     def save_to_db(self):
         """Inserts or Updates a row in the database"""

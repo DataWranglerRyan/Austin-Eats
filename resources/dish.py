@@ -29,12 +29,15 @@ class Dish(Resource):
 
     @classmethod
     def post(cls, name) -> (Dict, int):
+        payload = cls.parse.parse_args()
+        restaurant = RestaurantModel.find_by_id(payload['restaurant_id'])
+        if not restaurant:
+            return {'message': 'Restaurant not found.'}, 404
+
         if DishModel.find_by_name(name):
             return {'message': f'Dish with name {name} already exists.'}, 400
 
-        payload = cls.parse.parse_args()
-        dish = DishModel(name, payload['review'], payload['restaurant_id'])
-
+        dish = DishModel(name, payload['review'])
         try:
             dish.save_to_db()
         except Exception as e:
@@ -54,18 +57,23 @@ class Dish(Resource):
     @classmethod
     def put(cls, name) -> (Dict, int):
         payload = cls.parse.parse_args()
-        dish = DishModel.find_by_name(name)
+        restaurant = RestaurantModel.find_by_id(payload['restaurant_id'])
+        if not restaurant:
+            return {'message': 'Restaurant not found.'}, 404
+
+        dish = restaurant.get_dish_by_name(name)
 
         if dish is None:
             try:
-                dish = DishModel(name, payload['review'], payload['restaurant_id'])
-            except:
-                return {'message': 'An error occurred creating Dish.'}, 500
+                dish = DishModel(name, payload['review'])
+                dish.restaurant = restaurant
+            except Exception as e:
+                return {'message': f'An error occurred creating Dish.'}, 500
         else:
             try:
                 dish.review = payload['review']
-            except:
-                return {'message': 'An error occurred updating Dish.'}, 500
+            except Exception as e:
+                return {'message': f'An error occurred updating Dish.'}, 500
 
         dish.save_to_db()
         return dish.json(), 200
