@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for
-from resources.restaurant import Restaurant, RestaurantList, RestaurantByID, RestaurantGetRandom
+from resources.restaurant import Restaurant, RestaurantList, RestaurantListByUser, RestaurantByID, RestaurantGetRandom,\
+    RestaurantByUser
 from resources.dish import DishByRestaurantID, DishListByRestaurantID
 
 restaurants_blueprint = Blueprint('restaurants', __name__)
@@ -10,8 +11,9 @@ restaurant_blueprint = Blueprint('restaurant', __name__)
 
 @restaurants_blueprint.route('/', methods=['GET'])
 def restaurant_list():
-    if session.get('user_name'):
-        payload, status_code = RestaurantList.get()
+    user = session.get('user_name')
+    if user:
+        payload, status_code = RestaurantListByUser.get(user)
         return render_template('restaurant/index.html', restaurants=payload['restaurants'],
                                user_name=session['user_name'], restaurant=Restaurant)
     else:
@@ -47,8 +49,11 @@ def create_restaurant():
     if request.method == 'GET':
         return render_template('restaurant/new.html')
     else:
-        Restaurant.post(request.form['name'])
-        return redirect(url_for("restaurants.restaurant_list"))
+        payload, status_code = Restaurant.post(request.form['name'])
+        if status_code == 201:
+            return redirect(url_for("restaurants.restaurant_list"))
+        else:
+            return render_template('error.html', error=payload['message'])
 
 
 @restaurant_blueprint.route('/edit/<string:restaurant_id>', methods=['POST', 'GET'])
@@ -59,6 +64,15 @@ def edit_restaurant(restaurant_id):
         return redirect(url_for("restaurants.restaurant_list", name=payload['name']))
     else:
         return render_template("restaurant/edit.html", restaurant=payload)
+
+
+@restaurant_blueprint.route('/delete/<string:restaurant_id>', methods=['GET'])
+def delete_restaurant(restaurant_id):
+    payload, status_code = RestaurantByUser.delete(session.get('user_name'), restaurant_id)
+    if status_code == 200:
+        return redirect(url_for("restaurants.restaurant_list"))
+    else:
+        return render_template('error.html', error=payload['message'])
 
 
 @restaurant_blueprint.route('/<string:restaurant_id>/dish/new', methods=['POST', 'GET'])

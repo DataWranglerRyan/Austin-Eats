@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse
 from flask_jwt_extended import jwt_required
 from typing import Dict
 from models.restaurant_model import RestaurantModel
+from models.user_model import UserModel
 
 
 class Restaurant(Resource):
@@ -32,11 +33,20 @@ class Restaurant(Resource):
 
     @staticmethod
     def post(name) -> (Dict, int):
-        if RestaurantModel.find_by_name(name):
-            return {'message': f'Restaurant with name {name} already exists.'}, 400
-        payload = Restaurant.parse.parse_args()
         added_by = session.get('user_name', 'api_user')
-        restaurant = RestaurantModel(name, payload['review'], added_by)
+        payload = Restaurant.parse.parse_args()
+        existing_restaurant = RestaurantModel.find_by_name(name)
+        new_restaurant = RestaurantModel(name, payload['review'], added_by)
+        restaurant = existing_restaurant if existing_restaurant else new_restaurant
+        if added_by == 'api_user':
+            if existing_restaurant:
+                return {'message': f'Restaurant with name {name} already exists.'}, 400
+        else:
+            user = UserModel.find_by_username(added_by)
+            if user.has_specific_restaurant(restaurant):
+                return {'message': f'User already has restaurant with name {name}'}, 400
+            else:
+                restaurant.users.append(user)
 
         try:
             restaurant.save_to_db()
@@ -83,6 +93,15 @@ class RestaurantByID(Resource):
             return restaurant.json(), 200
         return {'message': 'Restaurant not found.'}, 404  # return 404 Not Found
 
+    @staticmethod
+    def delete(restaurant_id) -> (Dict, int):
+        restaurant = RestaurantModel.find_by_id(restaurant_id)
+        if restaurant:
+            restaurant.delete_from_db()
+            return {'message': '{} deleted.'.format(restaurant.name)}, 200
+        else:
+            return {'message': f'Restaurant ({restaurant.name}) does not exist.'}, 400
+
 
 class RestaurantGetRandom(Resource):
     @staticmethod
@@ -99,3 +118,19 @@ class RestaurantList(Resource):
     def get() -> (Dict, int):
         return {'restaurants': [r.json() for r in RestaurantModel.get_all()]}, 200
 
+
+class RestaurantListByUser(Resource):
+    @staticmethod
+    def get(user_name) -> (Dict, int):
+        user = UserModel.find_by_username(user_name)
+        return {'restaurants': [r.json() for r in user.get_restaurants()]}, 200
+
+
+class RestaurantByUser(Resource):
+    @staticmethod
+    def delete(user_name, restaurant_id) -> (Dict, int):
+        user = UserModel.find_by_username(user_name)
+        restaurant = RestaurantModel.find_by_id(restaurant_id)
+        user.restaurants.remove(restaurant)
+        user.save_to_db()
+        return {'restaurants': [r.json() for r in user.get_restaurants()]}, 200

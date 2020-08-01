@@ -3,6 +3,7 @@ from sqlalchemy.sql.expression import func
 from typing import Dict, List
 from .dish_model import DishModel
 from .restaurant_review_model import RestaurantReviewModel
+from .user_restaurant import user_restaurants
 
 
 class RestaurantModel(db.Model):
@@ -15,6 +16,7 @@ class RestaurantModel(db.Model):
 
     dishes = db.relationship('DishModel', back_populates='restaurant', lazy='dynamic')
     reviews = db.relationship('RestaurantReviewModel', back_populates='restaurant', lazy='dynamic')
+    users = db.relationship('UserModel', secondary='user_restaurants', lazy='dynamic')
 
     def __init__(self, name: str, review: float, added_by: str = None):
         self.name = name

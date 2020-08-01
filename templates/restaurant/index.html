@@ -21,6 +21,9 @@
                         <a class="btn btn-secondary btn-sm" href="{{ url_for('restaurant.edit_restaurant', restaurant_id=restaurant.id) }}">
                             Edit
                         </a>
+                        <a class="btn btn-outline-danger btn-sm" href="{{ url_for('restaurant.delete_restaurant', restaurant_id=restaurant.id) }}">
+                            Remove
+                        </a>
                         <a class="btn btn-secondary btn-sm" href="{{ url_for('restaurant.create_restaurant_dish', restaurant_id=restaurant.id) }}">
                             Add Dish
                         </a>
