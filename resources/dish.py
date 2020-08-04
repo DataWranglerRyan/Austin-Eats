@@ -114,10 +114,12 @@ class DishByRestaurantID(Resource):
 
     @classmethod
     def post(cls, restaurant_id) -> (Dict, int):
-        if not RestaurantModel.find_by_id(restaurant_id):
+        restaurant = RestaurantModel.find_by_id(restaurant_id)
+        if not restaurant:
             return {'message': f'Cannot add dish. Restaurant with {restaurant_id} does not exist. '}, 400
         payload = cls.parse.parse_args()
-        dish = DishModel(payload['name'], payload['review'], restaurant_id)
+        dish = DishModel(payload['name'], payload['review'])
+        dish.restaurant = restaurant
 
         try:
             dish.save_to_db()

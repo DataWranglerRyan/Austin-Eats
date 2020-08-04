@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from resources.restaurant import Restaurant, RestaurantList, RestaurantListByUser, RestaurantByID, RestaurantGetRandom,\
     RestaurantByUser
 from resources.dish import DishByRestaurantID, DishListByRestaurantID
+from common.decorators import requires_login
 
 restaurants_blueprint = Blueprint('restaurants', __name__)
 restaurant_blueprint = Blueprint('restaurant', __name__)
@@ -10,10 +11,11 @@ restaurant_blueprint = Blueprint('restaurant', __name__)
 
 
 @restaurants_blueprint.route('/', methods=['GET'])
+@requires_login
 def restaurant_list():
     user = session.get('user_name')
-    if user:
-        payload, status_code = RestaurantListByUser.get(user)
+    payload, status_code = RestaurantListByUser.get(user)
+    if status_code == 200:
         return render_template('restaurant/index.html', restaurants=payload['restaurants'],
                                user_name=session['user_name'], restaurant=Restaurant)
     else:
@@ -23,6 +25,7 @@ def restaurant_list():
 
 
 @restaurant_blueprint.route('/random', methods=['GET'])
+@requires_login
 def get_random():
     payload, status_code = RestaurantGetRandom.get()
     if status_code == 200:
@@ -32,6 +35,7 @@ def get_random():
 
 
 @restaurant_blueprint.route('/<string:name>', methods=['GET'])
+@requires_login
 def restaurant_by_name(name):
     if session.get('user_name'):
         payload, status_code = Restaurant.get(name)
@@ -45,6 +49,7 @@ def restaurant_by_name(name):
 
 
 @restaurant_blueprint.route('/new', methods=['POST', 'GET'])
+@requires_login
 def create_restaurant():
     if request.method == 'GET':
         return render_template('restaurant/new.html')
@@ -57,6 +62,7 @@ def create_restaurant():
 
 
 @restaurant_blueprint.route('/edit/<string:restaurant_id>', methods=['POST', 'GET'])
+@requires_login
 def edit_restaurant(restaurant_id):
     payload, status_code = RestaurantByID.get(restaurant_id)
     if request.method == 'POST':
@@ -67,6 +73,7 @@ def edit_restaurant(restaurant_id):
 
 
 @restaurant_blueprint.route('/delete/<string:restaurant_id>', methods=['GET'])
+@requires_login
 def delete_restaurant(restaurant_id):
     payload, status_code = RestaurantByUser.delete(session.get('user_name'), restaurant_id)
     if status_code == 200:
@@ -76,6 +83,7 @@ def delete_restaurant(restaurant_id):
 
 
 @restaurant_blueprint.route('/<string:restaurant_id>/dish/new', methods=['POST', 'GET'])
+@requires_login
 def create_restaurant_dish(restaurant_id):
     if request.method == 'GET':
         return render_template('restaurant/dish/new.html', restaurant_id=restaurant_id)
