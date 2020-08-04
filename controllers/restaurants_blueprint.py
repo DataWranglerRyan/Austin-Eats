@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from resources.restaurant import Restaurant, RestaurantList, RestaurantListByUser, RestaurantByID, RestaurantGetRandom,\
     RestaurantByUser
 from resources.dish import DishByRestaurantID, DishListByRestaurantID
-from common.decorators import requires_login
+from common.decorators import requires_login, requires_admin
 
 restaurants_blueprint = Blueprint('restaurants', __name__)
 restaurant_blueprint = Blueprint('restaurant', __name__)
@@ -26,6 +26,7 @@ def restaurant_list():
 
 @restaurant_blueprint.route('/random', methods=['GET'])
 @requires_login
+@requires_admin
 def get_random():
     payload, status_code = RestaurantGetRandom.get()
     if status_code == 200:
@@ -72,10 +73,22 @@ def edit_restaurant(restaurant_id):
         return render_template("restaurant/edit.html", restaurant=payload)
 
 
+@restaurant_blueprint.route('/remove/<string:restaurant_id>', methods=['GET'])
+@requires_login
+def remove_restaurant_from_list(restaurant_id):
+    payload, status_code = RestaurantByUser.delete(session.get('user_name'), restaurant_id)
+    if status_code == 200:
+        return redirect(url_for("restaurants.restaurant_list"))
+    else:
+        return render_template('error.html', error=payload['message'])
+
+
 @restaurant_blueprint.route('/delete/<string:restaurant_id>', methods=['GET'])
 @requires_login
+@requires_admin
 def delete_restaurant(restaurant_id):
-    payload, status_code = RestaurantByUser.delete(session.get('user_name'), restaurant_id)
+    restaurant, status_code_fetch = RestaurantByID.get(restaurant_id)
+    payload, status_code = Restaurant.delete(restaurant['name'])
     if status_code == 200:
         return redirect(url_for("restaurants.restaurant_list"))
     else:
