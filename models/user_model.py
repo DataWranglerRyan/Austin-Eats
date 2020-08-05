@@ -8,7 +8,7 @@ class UserModel(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)  # Auto Increments
     username = db.Column(db.String(80))
-    password = db.Column(db.String(80))
+    password = db.Column(db.String(512))
 
     restaurants = db.relationship('RestaurantModel', secondary='user_restaurants', lazy='dynamic')
 
