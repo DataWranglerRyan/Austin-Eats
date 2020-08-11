@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 from typing import Dict
 from models.restaurant_model import RestaurantModel
 from models.user_model import UserModel
+from models.restaurant_review_model import RestaurantReviewModel
 
 
 class Restaurant(Resource):
@@ -13,6 +14,12 @@ class Restaurant(Resource):
         required=True,
         type=float,
         help='Field is required.'
+    )
+    parse.add_argument(
+        'user_name',
+        required=False,
+        type=str,
+        help='Field is Optional, but should be used for POST and PUT.'
     )
 
     @staticmethod
@@ -32,21 +39,21 @@ class Restaurant(Resource):
         return {'message': 'Restaurant not found.'}, 404  # return 404 Not Found
 
     @staticmethod
+    # @jwt_required
     def post(name) -> (Dict, int):
-        added_by = session.get('user_name', 'api_user')
         payload = Restaurant.parse.parse_args()
+        added_by = session.get('user_name', payload.get('user_name'))
         existing_restaurant = RestaurantModel.find_by_name(name)
-        new_restaurant = RestaurantModel(name, payload['review'], added_by)
+        new_restaurant = RestaurantModel(name, added_by)
         restaurant = existing_restaurant if existing_restaurant else new_restaurant
-        if added_by == 'api_user':
-            if existing_restaurant:
-                return {'message': f'Restaurant with name {name} already exists.'}, 400
+        review = RestaurantReviewModel(payload['review'])
+        user = UserModel.find_by_username(added_by)
+        if user.has_specific_restaurant(restaurant):
+            return {'message': f'User already has restaurant with name {name}'}, 400
         else:
-            user = UserModel.find_by_username(added_by)
-            if user.has_specific_restaurant(restaurant):
-                return {'message': f'User already has restaurant with name {name}'}, 400
-            else:
-                restaurant.users.append(user)
+            user.reviews.append(review)
+            restaurant.reviews.append(review)
+            restaurant.users.append(user)
 
         try:
             restaurant.save_to_db()
@@ -70,17 +77,15 @@ class Restaurant(Resource):
         restaurant = RestaurantModel.find_by_name(name)
 
         if restaurant is None:
-            try:
-                restaurant = RestaurantModel(name, payload['review'])
-            except:
-                return {'message': 'An error occurred creating restaurant.'}, 500
+            return Restaurant.post(name)
         else:
             try:
-                restaurant.review = payload['review']
+                user = UserModel.find_by_username(session.get('user_name', payload.get('user_name')))
+                review = restaurant.get_review_by_user_id(user.id)
+                review.review = payload['review']
+                review.save_to_db()
             except:
                 return {'message': 'An error occurred updating restaurant.'}, 500
-
-        restaurant.save_to_db()
         return restaurant.json(), 200
 
 
@@ -132,5 +137,7 @@ class RestaurantByUser(Resource):
         user = UserModel.find_by_username(user_name)
         restaurant = RestaurantModel.find_by_id(restaurant_id)
         user.restaurants.remove(restaurant)
+        # REMOVE reviews by Restaurant isnt working 100%. Doesn't delete all reviews. CHECK.
+        user.remove_reviews_by_restaurant_id(restaurant.id)
         user.save_to_db()
         return {'restaurants': [r.json() for r in user.get_restaurants()]}, 200

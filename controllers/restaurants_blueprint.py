@@ -26,7 +26,7 @@ def restaurant_list():
 
 @restaurant_blueprint.route('/random', methods=['GET'])
 @requires_login
-@requires_admin
+# @requires_admin
 def get_random():
     payload, status_code = RestaurantGetRandom.get()
     if status_code == 200:
@@ -68,7 +68,7 @@ def edit_restaurant(restaurant_id):
     payload, status_code = RestaurantByID.get(restaurant_id)
     if request.method == 'POST':
         Restaurant.put(payload['name'])
-        return redirect(url_for("restaurants.restaurant_list", name=payload['name']))
+        return redirect(url_for("restaurants.restaurant_list"))
     else:
         return render_template("restaurant/edit.html", restaurant=payload)
 

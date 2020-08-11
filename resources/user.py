@@ -69,7 +69,7 @@ class UserLogin(Resource):
         if not Utils.check_encrypted_password(password, user.password):
             return {"msg": "Incorrect Password"}, 401
         else:
-            return {"token": create_access_token(identity=user.username)}, 200
+            return {"token": create_access_token(identity=user.username), "user_name": user_name}, 200
 
     @staticmethod
     def login(user_name):

@@ -9,27 +9,34 @@ class RestaurantReviewModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     review = db.Column(db.Float(precision=2))
     comment = db.Column(db.String(512))
-    reviewer = db.Column(db.String(80))
 
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     restaurant = db.relationship('RestaurantModel', back_populates='reviews')
 
-    def __init__(self, review: float, comment: str = None, reviewer: str = None):
+    def __init__(self, review: float, comment: str = None):
         self.review = review
         self.comment = comment
-        self.reviewer = reviewer
 
     def json(self) -> Dict:
         return {
                     'review': self.review,
                     'comment': self.comment,
-                    'reviewer': self.reviewer,
+                    'reviewer': self.user_id,
                     'restaurant_id': self.restaurant_id
         }
 
     @classmethod
-    def find_all_by_reviewer(cls, reviewer):
-        return cls.query.filter_by(reviewer=reviewer).all()
+    def find_all_by_restaurant_id(cls, restaurant_id):
+        return cls.query.filter_by(restaurant_id=restaurant_id).all()
+
+    @classmethod
+    def find_all_by_user_id(cls, user_id):
+        return cls.query.filter_by(user_id=user_id).all()
+
+    @classmethod
+    def find_by_user_and_restaurant_id(cls, user_id, restaurant_id):
+        return cls.query.filter_by(user_id=user_id, restaurant_id=restaurant_id).first()
 
     @classmethod
     def find_by_id(cls, _id):
